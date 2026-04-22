@@ -1,145 +1,144 @@
 #include<iostream>
 using namespace std;
-class Student {
-	const int rollNumber;
-	char* name;
-	double cgpa;
+class Vehicle {
+	const int registrationId;
+	char* ownerName;
+	double engineCapacity;
 public:
-	Student(int r,const char n[], double cgp):rollNumber(r){
-		name = new char[strlen(n) + 1];
-		strcpy_s(name, strlen(n) + 1, n);
-		cgpa = cgp;
-	}
-	Student(const Student& st):rollNumber(st.rollNumber)
+	Vehicle(int rgId, const char* name, double engine) :registrationId(rgId)
 	{
-		this->name = new char[strlen(st.name) + 1];
-	strcpy_s(name, strlen(st.name) + 1, st.name);
-      this->cgpa = st.cgpa;
+		engineCapacity = engine;
+		ownerName = new char[strlen(name) + 1];
+		strcpy_s(ownerName, strlen(name) + 1, name);
+
 	}
-	void setCGPA(double gp)
+	Vehicle(const Vehicle& v) :registrationId(v.registrationId)
 	{
-		cgpa = gp;
+		ownerName = new char[strlen(v.ownerName) + 1];
+		strcpy_s(ownerName, strlen(v.ownerName) + 1, v.ownerName);
+		engineCapacity = v.engineCapacity;
+
 	}
-	Student& improve(double cg)
+	void setEngine(double e)
 	{
-		cgpa = cg;
+		engineCapacity = e;
+	}
+
+	double getEngine() const
+	{
+		return engineCapacity;
+	}
+	void display() const {
+		cout << "Owner Name:" << ownerName << endl;
+		cout << "Registration Id:" << registrationId << endl;
+		cout << "Engine Capacity:" << engineCapacity << endl;
+	}
+ virtual~Vehicle()
+	{
+		delete[] ownerName;
+	}
+	const int getId() const
+	{
+		return registrationId;
+	}
+	Vehicle& upgradeEngine(double increment) {
+		engineCapacity += increment;
 		return *this;
 	}
-	double getGPA()
-	{
-		return cgpa;
-	}
-	int getRollNum()
-	{
-		return rollNumber;
-	}
-	virtual void display() const {
-		cout << "Name" << name << endl;
-		cout << "CGPA:" << cgpa << endl;
-		cout << "Roll Number:" << rollNumber << endl;
-	}
-	~Student()
-	{
-		delete[] name;
-	}
+		
 };
-class GraduateStudent :public Student {
-	char* thesisTitle;
-	int researchCredits;
+class ElectricVehicle :public Vehicle {
+	double batteryCapacity;
+	int chargingTime;
 public:
-	GraduateStudent(const char t[], int r,int rol,const char n[],double c):Student(rol,n,c) {
-		thesisTitle = new char[strlen(t) + 1];
-		strcpy_s(thesisTitle, strlen(t) + 1, t);
-		researchCredits = r;
+	ElectricVehicle(double battery, int ctime, int Id, const char* name, double engine) :Vehicle(Id, name, engine) {
+		batteryCapacity = battery;
+		chargingTime = ctime;
 	}
-	void display() const 
+	ElectricVehicle(const ElectricVehicle& ev) :Vehicle(ev)
 	{
-		Student::display();
-		cout << "Thesis Title:" << thesisTitle << endl;
-		cout << "Research Credits:" << researchCredits << endl;
+		batteryCapacity = ev.batteryCapacity;
+		chargingTime = ev.chargingTime;
 	}
-	void UpdateCredits(int c)
+	void updateChargingTime(int a) {
+		chargingTime = a;
+	}
+	void display() const {
+		Vehicle::display();
+		cout << "Batter Capacity:" << batteryCapacity << endl;
+		cout << "Charging Time:" << chargingTime;
+		}
+};
+class TransportOffice {
+	const int officeCode;
+	Vehicle** vehicles;
+	int totalVehicles;
+public:
+	TransportOffice(int ocode, int tveh) :officeCode(ocode) {
+		totalVehicles = tveh;
+		vehicles = new Vehicle * [totalVehicles];
+		for (int i = 0; i < totalVehicles; i++)
+		{
+			vehicles[i] = nullptr;
+		}
+	}
+	TransportOffice(const TransportOffice& t) :officeCode(t.officeCode)
 	{
-		researchCredits = c;
+		totalVehicles = t.totalVehicles;
 	}
-	GraduateStudent(const GraduateStudent& gs):Student(gs){
-		thesisTitle = new char[strlen(gs.thesisTitle) + 1];
-		strcpy_s(thesisTitle, strlen(gs.thesisTitle) + 1, gs.thesisTitle);
-		researchCredits = gs.researchCredits;
+	void addVehicle(Vehicle* v)
+	{
+		char name[40];
+		int id;
+		double capacity;
+		for (int i = 0; i < totalVehicles; i++)
+		{
+			cout << "Enter Vehicle:" << i + 1 << endl;
+			cout << "Enter Name:";
+			cin>>name;
+			cout << "Enter regstration Id:";
+			cin >> id;
+			cout << "Enter Capacity:";
+			cin >> capacity;
+			vehicles[i] = new Vehicle(id, name, capacity);
+
+		}
+	}
+	void dsiplay() const {
+		for (int i = 0; i < totalVehicles; i++)
+		{
+			vehicles[i]->display();
+		}
+	}
+	void findVehicle(int id)const {
+		for (int i = 0; i< totalVehicles; i++)
+		{
+			if ((vehicles[i]->getId()) == id)
+			{
+				vehicles[i]->display();
+		}
+		}
+	}
+	~TransportOffice()
+	{
+		for (int i = 0; i < totalVehicles; i++)
+		{
+			delete vehicles[i];
+		}
+		delete[] vehicles;
+	}
+
+};
+int main()
+{
+	ElectricVehicle e1(12, 89, 15, "Qaima", 34);
+	ElectricVehicle e2 = e1;
+	e2.display();
+	TransportOffice t(1234,3);
+	t.addVehicle(&e1);
+	t.findVehicle(2);
+	t.dsiplay();
+	return 0;
+
+
 }
-	~GraduateStudent()
-	{
-		delete[] thesisTitle;
-	}
-};
-class Department {
-	const int departmentCode;
-	Student** students;
-	int totalStudents;
-public:
-	Department(int dc, int t, int r,const char n[], double cgp) :departmentCode(dc) {
-		totalStudents = t;
-		students = new Student*[totalStudents];
-		for (int i = 0; i < totalStudents; i++)
-		{
-			students[i] = nullptr;
-		}
-	}
-	~Department()
-	{
-		for (int i = 0; i < totalStudents; i++)
-		{
-			delete students[i];
-	}
-		delete[] students;
-	}
-	void addStudent(Student* s)
-	{
-		for (int i = 0; i < totalStudents; i++)
-		{
-			if (students[i] != nullptr)
-			{
-				students[i] = s;
-			}
-		}
-
-	}
-	void findStudent(int index)const {
-		cout << "Enter the student Roll Number you want to find:";
-		cin >> index;
-		for (int i = 0; i < totalStudents; i++)
-		{
-			if (students[i]->getRollNum() == index) {
-				students[i]->display();
-				break;
-			}
-		}
-	}
-		void display()
-		{
-			for (int i = 0; i < totalStudents; i++)
-			{
-				if (students[i] != nullptr) {
-					students[i]->display();
-				}
-				else {
-					cout << "No student at index " << i << endl;
-				}
-			}
-			cout << "Department Code:" << departmentCode << endl;
-			cout << "Total Student:" << totalStudents << endl;
-		}
-};
-
-	int main()
-	{
-		Department d(101, 3, 0, "", 0.0);
-		GraduateStudent* gs1 = new GraduateStudent("Thesis on AI", 6, 1, "Alice", 3.8);
-		gs1->display();
-		d.addStudent(gs1);
-		d.display();
-		return 0;
-
-
-
-	}
